@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { KageLandingPage } from "@designcodeio/threeui";
+
 import "@designcodeio/threeui/style.css";
 
 import { StudyTimer } from './components/neet/StudyTimer';
@@ -42,16 +42,11 @@ import {
 
 export function Scene() {
   return (
-    <div className="shader-frame">
-      <KageLandingPage
-        headingFont="onest"
-        bodyFont="onest"
-        headingWeight="400"
-        bodyWeight="300"
-        primaryColor="#e0231c"
-        headingSize={46}
-        bodySize={17}
-        headingLetterSpacing={-0.012}
+    <div className="shader-frame w-full h-screen">
+      <iframe
+        src="/NEET2.0/landing-pages/kage.html"
+        title="Kage landing page"
+        className="block w-full h-full border-0"
       />
     </div>
   );
