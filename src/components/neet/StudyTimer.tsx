@@ -145,7 +145,7 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({ onSessionComplete, sessi
       {/* Header bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#dfe7e0]/10 pb-4">
         <div>
-          <h2 className="text-xl font-medium tracking-tight text-[#dfe7e0]">Focus Temple · Deep Study Timer</h2>
+          <h2 className="text-xl font-medium tracking-tight text-[#dfe7e0]">Deep Study Timer</h2>
           <p className="text-xs text-[#aab4ad] mt-0.5">
             Strictly authentic stopwatch · Zero bots, zero simulated metrics · Only genuine study time is logged
           </p>
