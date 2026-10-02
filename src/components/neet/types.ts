@@ -35,12 +35,14 @@ export interface SyllabusChapter {
 
 export interface PYQuestion {
   id: string;
-  exam: 'NEET' | 'JEE Main';
+  exam: 'NEET' | 'JEE Main' | 'JEE Advanced';
   year: number;
   subject: Subject;
   topic: string;
   questionType: 'MCQ' | 'Assertion-Reason' | 'Statement-Based' | 'Match-Column';
-  difficulty: 'Easy' | 'Moderate' | 'Challenging';
+  difficulty: 'Easy' | 'Moderate' | 'Tough';
+  sourceType?: 'Past Paper' | 'Original' | 'Needs Verification';
+  sourceReference?: string;
   question: string;
   options: {
     A: string;
