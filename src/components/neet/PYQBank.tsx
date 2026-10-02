@@ -8,9 +8,11 @@ interface PYQBankProps {
 }
 
 export const PYQBank: React.FC<PYQBankProps> = ({ questions, onToggleBookmark }) => {
-  const [selectedExam, setSelectedExam] = useState<'All' | 'NEET' | 'JEE Main'>('All');
+  const [selectedExam, setSelectedExam] = useState<'All' | 'NEET' | 'JEE Main' | 'JEE Advanced'>('All');
   const [selectedSubject, setSelectedSubject] = useState<'All' | Subject>('All');
-  const [selectedDifficulty, setSelectedDifficulty] = useState<'All' | 'Easy' | 'Moderate' | 'Challenging'>('All');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<'All' | 'Easy' | 'Moderate' | 'Tough'>('All');
+  const [selectedSource, setSelectedSource] = useState<'All' | 'Past Paper' | 'Original' | 'Needs Verification'>('All');
+  const [selectedTopic, setSelectedTopic] = useState('All');
   const [activeTab, setActiveTab] = useState<'All' | 'Bookmarked'>('All');
 
   // User selected answers: { [questionId]: 'A' | 'B' | 'C' | 'D' }
@@ -22,9 +24,14 @@ export const PYQBank: React.FC<PYQBankProps> = ({ questions, onToggleBookmark })
     const matchesExam = selectedExam === 'All' || q.exam === selectedExam;
     const matchesSubject = selectedSubject === 'All' || q.subject === selectedSubject;
     const matchesDifficulty = selectedDifficulty === 'All' || q.difficulty === selectedDifficulty;
+    const matchesSource = selectedSource === 'All' || (q.sourceType ?? 'Needs Verification') === selectedSource;
+    const matchesTopic = selectedTopic === 'All' || q.topic === selectedTopic;
     const matchesBookmark = activeTab === 'All' || (activeTab === 'Bookmarked' && q.isBookmarked);
-    return matchesExam && matchesSubject && matchesDifficulty && matchesBookmark;
+    return matchesExam && matchesSubject && matchesDifficulty && matchesSource && matchesTopic && matchesBookmark;
   });
+  const availableTopics = Array.from(new Set(questions
+    .filter((q) => selectedSubject === 'All' || q.subject === selectedSubject)
+    .map((q) => q.topic))).sort();
 
   const handleSelectOption = (qId: string, option: 'A' | 'B' | 'C' | 'D') => {
     if (userAnswers[qId]) return; // already answered
@@ -43,13 +50,13 @@ export const PYQBank: React.FC<PYQBankProps> = ({ questions, onToggleBookmark })
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#dfe7e0]/10 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-medium tracking-tight text-[#dfe7e0]">Crucial PYQ Repository</h2>
+            <h2 className="text-xl font-medium tracking-tight text-[#dfe7e0]">NEET &amp; JEE Question Bank</h2>
             <span className="text-xs text-[#c9a24a] font-mono">
               {filteredQuestions.length} Questions Curated
             </span>
           </div>
           <p className="text-xs text-[#aab4ad] mt-0.5">
-            Authentic NEET &amp; JEE Main crossover questions · Step-by-step solutions &amp; trap analysis
+            NEET and JEE practice · Filter questions by exam, chapter, difficulty, and source
           </p>
         </div>
 
@@ -63,7 +70,7 @@ export const PYQBank: React.FC<PYQBankProps> = ({ questions, onToggleBookmark })
                 : 'text-[#aab4ad] hover:text-[#dfe7e0]'
             }`}
           >
-            All PYQs
+            All Questions
           </button>
           <button
             onClick={() => setActiveTab('Bookmarked')}
@@ -79,12 +86,31 @@ export const PYQBank: React.FC<PYQBankProps> = ({ questions, onToggleBookmark })
         </div>
       </div>
 
+      <div className="flex flex-wrap items-center gap-3 text-xs">
+        <label className="flex items-center gap-2 text-[#aab4ad]">
+          Chapter:
+          <select value={selectedTopic} onChange={(e) => setSelectedTopic(e.target.value)} className="rounded border border-[#dfe7e0]/15 bg-[#0a0e12] px-2.5 py-1.5 text-[#dfe7e0]">
+            <option value="All">All chapters</option>
+            {availableTopics.map((topic) => <option key={topic} value={topic}>{topic}</option>)}
+          </select>
+        </label>
+        <label className="flex items-center gap-2 text-[#aab4ad]">
+          Source:
+          <select value={selectedSource} onChange={(e) => setSelectedSource(e.target.value as typeof selectedSource)} className="rounded border border-[#dfe7e0]/15 bg-[#0a0e12] px-2.5 py-1.5 text-[#dfe7e0]">
+            <option value="All">All sources</option>
+            <option value="Past Paper">Verified past paper</option>
+            <option value="Original">Original practice</option>
+            <option value="Needs Verification">Existing entry (source unverified)</option>
+          </select>
+        </label>
+      </div>
+
       {/* Filter rows */}
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
         {/* Exam Filter */}
         <div className="flex items-center gap-1.5">
           <span className="text-[#aab4ad]">Exam:</span>
-          {(['All', 'NEET', 'JEE Main'] as const).map((e) => (
+          {(['All', 'NEET', 'JEE Main', 'JEE Advanced'] as const).map((e) => (
             <button
               key={e}
               onClick={() => setSelectedExam(e)}
@@ -120,7 +146,7 @@ export const PYQBank: React.FC<PYQBankProps> = ({ questions, onToggleBookmark })
         {/* Difficulty Filter */}
         <div className="flex items-center gap-1.5">
           <span className="text-[#aab4ad]">Difficulty:</span>
-          {(['All', 'Easy', 'Moderate', 'Challenging'] as const).map((d) => (
+          {(['All', 'Easy', 'Moderate', 'Tough'] as const).map((d) => (
             <button
               key={d}
               onClick={() => setSelectedDifficulty(d)}
@@ -138,6 +164,11 @@ export const PYQBank: React.FC<PYQBankProps> = ({ questions, onToggleBookmark })
 
       {/* Questions List */}
       <div className="flex flex-col gap-4">
+        {filteredQuestions.length === 0 && (
+          <div className="rounded-xl border border-[#dfe7e0]/15 bg-[#0a0e12] p-6 text-sm text-[#aab4ad]">
+            No questions match these filters yet. More questions can be added as verified past-paper or original practice sets.
+          </div>
+        )}
         {filteredQuestions.map((q, idx) => {
           const userAns = userAnswers[q.id];
           const isAnswered = !!userAns;
@@ -153,7 +184,7 @@ export const PYQBank: React.FC<PYQBankProps> = ({ questions, onToggleBookmark })
               <div className="flex items-center justify-between gap-3 text-xs text-[#aab4ad] border-b border-[#dfe7e0]/10 pb-2.5">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-semibold text-[#e0231c]">
-                    {q.exam} {q.year}
+                    {q.exam} {q.sourceType === 'Original' ? 'Practice' : q.year}
                   </span>
                   <span aria-hidden="true">·</span>
                   <span className="text-[#dfe7e0]">{q.subject}</span>
@@ -161,6 +192,8 @@ export const PYQBank: React.FC<PYQBankProps> = ({ questions, onToggleBookmark })
                   <span>{q.topic}</span>
                   <span aria-hidden="true">·</span>
                   <span className="text-[11px] font-mono text-[#c9a24a]">{q.questionType}</span>
+                  <span className="rounded border border-[#dfe7e0]/15 px-1.5 py-0.5 text-[10px]">{q.difficulty}</span>
+                  <span className="rounded border border-[#dfe7e0]/15 px-1.5 py-0.5 text-[10px]">{q.sourceType === 'Original' ? 'Original practice' : q.sourceType === 'Past Paper' ? 'Verified past paper' : 'Source unverified'}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
