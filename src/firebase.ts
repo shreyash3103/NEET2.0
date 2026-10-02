@@ -29,7 +29,7 @@ declare global {
 }
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDoRxpQ6zxoHWgwBa5_D2pjevLxdHKY10',
+  apiKey: 'AIzaSyDoRxpO6zxoHWgwBa5_D2pjevLxdHXKY10',
   authDomain: 'neet20-5c785.firebaseapp.com',
   projectId: 'neet20-5c785',
   storageBucket: 'neet20-5c785.firebasestorage.app',
