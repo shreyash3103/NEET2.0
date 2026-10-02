@@ -89,6 +89,7 @@ export interface StudySession {
 }
 
 export interface UserProfile {
+  uid: string;
   email: string;
   name: string;
   avatarUrl?: string;
