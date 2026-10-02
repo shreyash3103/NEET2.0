@@ -80,10 +80,6 @@ export default function App() {
         setAuthError(error.message);
         setAuthBusy(false);
       });
-      void auth.getRedirectResult().catch((error: Error) => {
-        setAuthError(error.message || 'Google sign-in did not complete. Please try again.');
-        setAuthBusy(false);
-      });
       return unsubscribe;
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : 'Firebase could not be initialized.');
