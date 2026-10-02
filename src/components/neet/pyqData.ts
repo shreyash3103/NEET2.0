@@ -47,7 +47,7 @@ export const INITIAL_PYQS: PYQuestion[] = [
     subject: 'Physics',
     topic: 'Thermodynamics',
     questionType: 'Assertion-Reason',
-    difficulty: 'Challenging',
+    difficulty: 'Tough',
     question: 'Assertion (A): In an adiabatic expansion of an ideal gas, the temperature of the gas always decreases.\nReason (R): In an adiabatic process, heat exchange Q = 0, so work done by the gas is done at the cost of its internal energy.',
     options: {
       A: 'Both (A) and (R) are true and (R) is the correct explanation of (A)',
@@ -85,7 +85,7 @@ export const INITIAL_PYQS: PYQuestion[] = [
     subject: 'Physics',
     topic: 'Rotational Motion',
     questionType: 'MCQ',
-    difficulty: 'Challenging',
+    difficulty: 'Tough',
     question: 'A solid cylinder of mass M and radius R rolls without slipping down an inclined plane of inclination θ. The acceleration of its centre of mass is:',
     options: {
       A: 'g sin θ',
@@ -222,7 +222,7 @@ export const INITIAL_PYQS: PYQuestion[] = [
     subject: 'Botany',
     topic: 'Mendelian Genetics',
     questionType: 'MCQ',
-    difficulty: 'Challenging',
+    difficulty: 'Tough',
     question: 'How many different types of genetically distinct gametes will be produced by an individual with genotype AaBbCcDD, assuming independent assortment?',
     options: {
       A: '4',
