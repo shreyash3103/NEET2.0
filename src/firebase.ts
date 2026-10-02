@@ -1,3 +1,5 @@
+/** Firebase Google sign-in for the static GitHub Pages site. */
+
 interface FirebaseUserLike {
   uid: string;
   email: string | null;
@@ -10,9 +12,8 @@ interface FirebaseAuthLike {
     callback: (user: FirebaseUserLike | null) => void,
     onError?: (error: Error) => void
   ) => () => void;
-  signInWithRedirect: (provider: unknown) => Promise<void>;
+  signInWithPopup: (provider: unknown) => Promise<unknown>;
   signOut: () => Promise<void>;
-  getRedirectResult: () => Promise<unknown>;
 }
 
 interface FirebaseCompatLike {
@@ -28,7 +29,7 @@ declare global {
 }
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDoRxpO6zxoHWgwBa5_D2pjevLxdHXKY10',
+  apiKey: 'AIzaSyDoRxpQ6zxoHWgwBa5_D2pjevLxdHKY10',
   authDomain: 'neet20-5c785.firebaseapp.com',
   projectId: 'neet20-5c785',
   storageBucket: 'neet20-5c785.firebasestorage.app',
@@ -52,10 +53,10 @@ export function getFirebaseAuth(): FirebaseAuthLike {
   return authInstance;
 }
 
-export function signInWithGoogle(): Promise<void> {
+export async function signInWithGoogle(): Promise<void> {
   const auth = getFirebaseAuth();
   const provider = new window.firebase!.auth.GoogleAuthProvider();
-  return auth.signInWithRedirect(provider);
+  await auth.signInWithPopup(provider);
 }
 
 export type { FirebaseAuthLike, FirebaseUserLike };
