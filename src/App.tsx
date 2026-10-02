@@ -14,6 +14,7 @@ import { PYQBank } from './components/neet/PYQBank';
 import { NcertHighlighter } from './components/neet/NcertHighlighter';
 import { MistakeNotebook } from './components/neet/MistakeNotebook';
 import { AuthModal } from './components/neet/AuthModal';
+import { getFirebaseAuth, signInWithGoogle, FirebaseUserLike } from './firebase';
 
 import { INITIAL_SYLLABUS } from './components/neet/syllabusData';
 import { INITIAL_PYQS } from './components/neet/pyqData';
@@ -57,23 +58,61 @@ export type ActiveNeetTool = 'timer' | 'targets' | 'syllabus' | 'pyq' | 'ncert' 
 export default function App() {
   const [activeTool, setActiveTool] = useState<ActiveNeetTool>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authBusy, setAuthBusy] = useState(false);
 
-  // Authenticated user state (Default to student's verified Gmail account)
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
+  useEffect(() => {
     try {
-      const saved = localStorage.getItem('neet_user');
-      if (saved) return JSON.parse(saved);
-      return {
-        email: 'shreyashmission700@gmail.com',
-        name: 'Shreyash',
-        targetScore: 720,
-        neetyear: 2027,
-        joinedDate: 'Oct 2026'
-      };
-    } catch {
-      return null;
+      const auth = getFirebaseAuth();
+      const unsubscribe = auth.onAuthStateChanged((user: FirebaseUserLike | null) => {
+        setCurrentUser(user ? {
+          uid: user.uid,
+          email: user.email ?? '',
+          name: user.displayName ?? 'NEET Student',
+          avatarUrl: user.photoURL ?? undefined,
+          targetScore: 700,
+          neetyear: 2027,
+          joinedDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        } : null);
+        setAuthBusy(false);
+      }, (error: Error) => {
+        setAuthError(error.message);
+        setAuthBusy(false);
+      });
+      void auth.getRedirectResult().catch((error: Error) => {
+        setAuthError(error.message || 'Google sign-in did not complete. Please try again.');
+        setAuthBusy(false);
+      });
+      return unsubscribe;
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Firebase could not be initialized.');
     }
-  });
+  }, []);
+
+  const handleGoogleSignIn = async () => {
+    setAuthError(null);
+    setAuthBusy(true);
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Google sign-in failed. Please try again.');
+      setAuthBusy(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    setAuthError(null);
+    setAuthBusy(true);
+    try {
+      await getFirebaseAuth().signOut();
+      setIsAuthOpen(false);
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Sign-out failed. Please try again.');
+    } finally {
+      setAuthBusy(false);
+    }
+  };
 
   // Daily targets state (Zero fake completed tasks - starting uncompleted)
   const [targets, setTargets] = useState<DailyTarget[]>(() => {
@@ -204,13 +243,13 @@ export default function App() {
     return () => window.removeEventListener('message', handleMsg);
   }, []);
 
-  // Local storage synchronization
+  // Keep the previous demo profile out of the account display. Firebase owns sign-in state.
   useEffect(() => {
     try {
-      if (currentUser) localStorage.setItem('neet_user', JSON.stringify(currentUser));
-      else localStorage.removeItem('neet_user');
+      localStorage.removeItem('neet_user');
+      localStorage.removeItem('neet_user_v2');
     } catch {}
-  }, [currentUser]);
+  }, []);
 
   useEffect(() => {
     try {
@@ -347,7 +386,7 @@ export default function App() {
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveTool(null)}>
             <span className="w-2.5 h-2.5 rounded-full bg-[#e0231c] animate-pulse" />
             <span className="text-sm font-semibold tracking-wider text-[#dfe7e0]">
-              NEET 2027 <span className="text-[#aab4ad] font-normal text-xs font-mono">· AIIMS SANCTUARY</span>
+              NEET 2027 <span className="text-[#aab4ad] font-normal text-xs font-mono">· STUDY HUB</span>
             </span>
           </div>
         </div>
@@ -428,7 +467,7 @@ export default function App() {
           </button>
         </nav>
 
-        {/* Right Action Icons & Authentic Gmail Account */}
+        {/* Right Action Icons & Student Account */}
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2.5 text-xs text-[#aab4ad] font-mono bg-[#0a0e12]/80 px-3 py-1.5 rounded-lg border border-[#dfe7e0]/10">
             <span title="Genuine verified study duration">⏱️ {realHours}h {realMins}m</span>
@@ -439,13 +478,13 @@ export default function App() {
           <button
             onClick={() => setIsAuthOpen(true)}
             className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-lg border border-[#dfe7e0]/20 hover:border-[#dfe7e0]/40 text-[#dfe7e0] bg-[#0a0e12]/90 backdrop-blur-md transition"
-            title="Google Account Session"
+            title={currentUser ? 'Google account' : 'Sign in with Google'}
           >
             <div className="w-5 h-5 rounded-full bg-[#e0231c] text-[10px] text-white flex items-center justify-center font-bold">
               {currentUser ? currentUser.name.charAt(0).toUpperCase() : 'G'}
             </div>
             <span className="hidden sm:inline font-mono truncate max-w-[140px]">
-              {currentUser ? currentUser.email.split('@')[0] : 'Sign In'}
+              {currentUser ? (currentUser.email.split('@')[0] || currentUser.name) : 'Set Profile'}
             </span>
           </button>
         </div>
@@ -523,13 +562,15 @@ export default function App() {
         </div>
       )}
 
-      {/* Gmail / Google Authentication Modal */}
+      {/* Local Profile Modal */}
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
         currentUser={currentUser}
-        onLogin={(profile) => setCurrentUser(profile)}
-        onLogout={() => setCurrentUser(null)}
+        authError={authError}
+        authBusy={authBusy}
+        onGoogleSignIn={handleGoogleSignIn}
+        onLogout={handleSignOut}
       />
     </div>
   );
