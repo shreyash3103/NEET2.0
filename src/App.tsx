@@ -466,7 +466,7 @@ export default function App() {
               <button
                 onClick={() => setActiveTool(null)}
                 className="p-1.5 rounded-full text-[#aab4ad] hover:text-[#dfe7e0] hover:bg-[#dfe7e0]/10 transition"
-                title="Return to 3D Temple View"
+                title="Return to NEET Study View"
               >
                 <X size={18} />
               </button>
