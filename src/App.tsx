@@ -13,6 +13,7 @@ import { SyllabusTracker } from './components/neet/SyllabusTracker';
 import { PYQBank } from './components/neet/PYQBank';
 import { NcertHighlighter } from './components/neet/NcertHighlighter';
 import { MistakeNotebook } from './components/neet/MistakeNotebook';
+import { BiologyHub } from './components/neet/BiologyHub';
 import { AuthModal } from './components/neet/AuthModal';
 import { getFirebaseAuth, signInWithGoogle, FirebaseUserLike } from './firebase';
 
@@ -38,7 +39,8 @@ import {
   User,
   X,
   Maximize2,
-  Sparkles
+  Sparkles,
+  Leaf
 } from 'lucide-react';
 
 export function Scene() {
@@ -53,7 +55,7 @@ export function Scene() {
   );
 }
 
-export type ActiveNeetTool = 'timer' | 'targets' | 'syllabus' | 'pyq' | 'ncert' | 'mistakes' | null;
+export type ActiveNeetTool = 'timer' | 'targets' | 'syllabus' | 'pyq' | 'ncert' | 'mistakes' | 'biology' | null;
 
 export default function App() {
   const [activeTool, setActiveTool] = useState<ActiveNeetTool>(null);
@@ -372,7 +374,7 @@ export default function App() {
         charred cypress, lanterns, vermilion moon, and all original scroll effects!
       */}
       <div className="w-full h-full absolute inset-0 z-0">
-        <Scene />
+        {activeTool !== 'biology' && <Scene />}
       </div>
 
       {/* Floating Zen Top Navigation Bar over the 3D Sanctuary */}
@@ -388,7 +390,16 @@ export default function App() {
         </div>
 
         {/* Center NEET 2027 Interactive Tool Shortcuts */}
-        <nav aria-label="Study Tools" className="hidden lg:flex items-center gap-1 p-1 bg-[#0a0e12]/80 backdrop-blur-md rounded-xl border border-[#dfe7e0]/15">
+        <nav aria-label="Study Tools" className="hidden lg:flex max-w-[calc(100vw-430px)] items-center gap-1 overflow-x-auto p-1 bg-[#0a0e12]/80 backdrop-blur-md rounded-xl border border-[#dfe7e0]/15">
+          <button
+            onClick={() => setActiveTool(activeTool === 'biology' ? null : 'biology')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg transition font-medium ${
+              activeTool === 'biology' ? 'bg-emerald-700/70 text-emerald-50 shadow-sm' : 'text-[#aab4ad] hover:text-[#dfe7e0]'
+            }`}
+          >
+            <Leaf size={14} />
+            <span>Biology</span>
+          </button>
           <button
             onClick={() => setActiveTool(activeTool === 'targets' ? null : 'targets')}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg transition font-medium ${
@@ -487,7 +498,7 @@ export default function App() {
       </header>
 
       {/* Floating Glass Tool Overlay Panels (over the live 3D NEET sanctuary) */}
-      {activeTool !== null && (
+      {activeTool !== null && activeTool !== 'biology' && (
         <div className="fixed inset-0 z-40 pt-16 pb-20 px-4 sm:px-8 flex items-center justify-center pointer-events-none animate-in fade-in zoom-in-95 duration-200">
           <div className="w-full max-w-4xl max-h-[85vh] overflow-y-auto pointer-events-auto rounded-3xl bg-[#05070a]/92 backdrop-blur-2xl border border-[#dfe7e0]/20 shadow-2xl p-6 relative flex flex-col gap-4 text-[#dfe7e0]">
             {/* Close / Minimize button at top right */}
@@ -556,6 +567,18 @@ export default function App() {
             )}
           </div>
         </div>
+      )}
+
+      {activeTool === 'biology' && (
+        <BiologyHub
+          chapters={chapters}
+          questions={questions}
+          ncertLines={ncertLines}
+          onToggleChapter={handleToggleChapter}
+          onToggleBookmarkPYQ={handleToggleBookmarkPYQ}
+          onToggleBookmarkNcert={handleToggleBookmarkNcert}
+          onClose={() => setActiveTool(null)}
+        />
       )}
 
       {/* Local Profile Modal */}
